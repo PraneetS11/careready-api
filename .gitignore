@@ -12,3 +12,9 @@ htmlcov/
 build/
 dist/
 .DS_Store
+
+# Local learning guides
+/docs/BUILD_PROGRESSION.md
+/docs/CareReady_Watch_Build_Guide.pdf
+/docs/PROGRESS.md
+/docs/archive/
