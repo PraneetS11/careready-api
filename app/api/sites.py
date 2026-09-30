@@ -3,7 +3,6 @@ from fastapi import APIRouter, HTTPException, status
 from app.api import site_data
 from app.schemas.sites import SiteCreate, SiteUpdate
 
-
 router = APIRouter()
 
 
@@ -14,11 +13,7 @@ async def get_all_sites(
     if active is None:
         return site_data.sites
 
-    return [
-        site
-        for site in site_data.sites
-        if site["active"] == active
-    ]
+    return [site for site in site_data.sites if site["active"] == active]
 
 
 @router.get("/{site_id}")

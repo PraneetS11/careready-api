@@ -10,7 +10,7 @@ Record real date and proof before the chapter commit; add its SHA in the next do
 | [ ] | CH02 | 0:49:43 | Creating a simple web server | | | |
 | [ ] | CH03 | 1:23:37 | Building a CRUD REST API | | | |
 | [ ] | CH04 | 1:38:22 | Large project structure using routers | | | |
-| [x] | CH05 | 2:29:48 | Databases with SQLModel | 2026-09-30 | | Local PostgreSQL/Redis healthy; readiness 200 on two startups; one site table with UUID primary key and all five required columns; clean shutdown twice; 8 tests pass. See verification below. |
+| [x] | CH05 | 2:29:48 | Databases with SQLModel | 2026-09-30 | 4b95de6 | Local PostgreSQL/Redis healthy; readiness 200 on two startups; one site table with UUID primary key and all five required columns; clean shutdown twice; 8 tests pass. See verification below. |
 | [ ] | CH06 | 3:33:35 | Finishing the database CRUD | | | |
 | [ ] | CH07 | 3:59:57 | Creating the user authentication model | | | |
 | [ ] | CH08 | 4:42:57 | User account creation | | | |
@@ -37,11 +37,10 @@ Record real date and proof before the chapter commit; add its SHA in the next do
 - `make test`: 8 passed, including generated UUID/schema checks and the retained
   in-memory create/read/filter/update/delete behavior. The existing Starlette
   TestClient/httpx deprecation warning remains.
-- Ruff lint and format checks pass for all changed Python files and tests.
-  Full-project lint still has the pre-existing import-spacing issue in
-  `app/api/sites.py`; full-project format checks flag that file and
-  `app/api/site_data.py`. These unchanged Chapter 4 files were left intact.
+- Follow-up formatting cleanup in `app/api/sites.py` and `app/api/site_data.py`
+  resolves the GitHub Actions import-spacing failure. Full-project `make lint`
+  now passes (25 files formatted), and `make test` still reports 8 passed.
+  The cleanup changes whitespace only; Chapter 4 route behavior is preserved.
 - HTTP site CRUD still uses memory and integer ids until CH06. Table initialization
   runs only in development; tests explicitly use the test environment.
-- Feature SHA is left blank in the implementation commit; record it in a later
-  documentation update after the commit exists.
+- Implementation committed and pushed as `4b95de6`; recorded in this follow-up.
