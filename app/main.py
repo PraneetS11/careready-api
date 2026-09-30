@@ -1,13 +1,13 @@
 from contextlib import asynccontextmanager
 from typing import Optional
 
-from fastapi.exceptions import HTTPException
-from fastapi import FastAPI, Header, status
+from fastapi import FastAPI, Header
 from pydantic import BaseModel
 from redis.asyncio import Redis
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
-from app.api.health import router
+from app.api.health import router as health_router
+from app.api.sites import router as sites_router
 from app.core.config import Settings
 
 
@@ -16,7 +16,11 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     @asynccontextmanager
     async def lifespan(app: FastAPI):
-        engine = create_async_engine(config.database_url, pool_pre_ping=True)
+        engine = create_async_engine(
+            config.database_url,
+            pool_pre_ping=True,
+        )
+
         cache = Redis.from_url(
             config.redis_url,
             socket_connect_timeout=2,
@@ -24,10 +28,12 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         )
 
         app.state.engine = engine
+
         app.state.sessions = async_sessionmaker(
             engine,
             expire_on_commit=False,
         )
+
         app.state.redis = cache
 
         try:
@@ -42,7 +48,13 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         lifespan=lifespan,
     )
 
-    app.include_router(router)
+    app.include_router(health_router)
+
+    app.include_router(
+        sites_router,
+        prefix="/api/v1/sites",
+        tags=["sites"],
+    )
 
     return app
 
@@ -57,7 +69,9 @@ async def read_root():
 
 @app.get("/practice/sites/{site_name}/welcome")
 async def greet_site(site_name: str) -> dict:
-    return {"message": f"Welcome to the {site_name} office!!"}
+    return {
+        "message": f"Welcome to the {site_name} office!!"
+    }
 
 
 @app.get("/practice/site-preview")
@@ -79,7 +93,9 @@ class SiteCreateModel(BaseModel):
 
 
 @app.post("/create_site")
-async def create_site_preview(site_data: SiteCreateModel) -> dict:
+async def create_site_preview(
+    site_data: SiteCreateModel,
+) -> dict:
     return {
         "name": site_data.name,
         "city": site_data.city,
@@ -99,109 +115,3 @@ async def get_headers(
         "Content-Type": content_type,
         "Host": host,
     }
-
-
-sites = [
-    {
-        "id": 1,
-        "name": "McMaster",
-        "city": "Hamilton",
-        "timezone": "Eastern",
-        "active": True,
-    },
-    {
-        "id": 2,
-        "name": "TMU",
-        "city": "Toronto",
-        "timezone": "Eastern",
-        "active": False,
-    },
-]
-
-next_id = 3
-
-
-class Site(BaseModel):
-    name: str
-    city: str
-    timezone: str
-    active: bool
-
-
-class SiteUpdateModel(BaseModel):
-    active: bool
-
-
-@app.get("/sites")
-async def get_all_sites(
-    active: bool | None = None,
-) -> list[dict]:
-    if active is None:
-        return sites
-
-    return [
-        site
-        for site in sites
-        if site["active"] == active
-    ]
-
-
-@app.get("/sites/{site_id}")
-async def get_site(site_id: int) -> dict:
-    for site in sites:
-        if site["id"] == site_id:
-            return site
-
-    raise HTTPException(
-        status_code=status.HTTP_404_NOT_FOUND,
-        detail="Site not found",
-    )
-
-
-@app.post(
-    "/sites",
-    status_code=status.HTTP_201_CREATED,
-)
-async def create_site(site_data: Site) -> dict:
-    global next_id
-
-    new_site = site_data.model_dump()
-    new_site["id"] = next_id
-
-    next_id += 1
-
-    sites.append(new_site)
-
-    return new_site
-
-
-@app.patch("/sites/{site_id}")
-async def update_site(
-    site_id: int,
-    site_update_data: SiteUpdateModel,
-) -> dict:
-    for site in sites:
-        if site["id"] == site_id:
-            site["active"] = site_update_data.active
-            return site
-
-    raise HTTPException(
-        status_code=status.HTTP_404_NOT_FOUND,
-        detail="Site not found",
-    )
-
-
-@app.delete(
-    "/sites/{site_id}",
-    status_code=status.HTTP_204_NO_CONTENT,
-)
-async def delete_site(site_id: int):
-    for site in sites:
-        if site["id"] == site_id:
-            sites.remove(site)
-            return
-
-    raise HTTPException(
-        status_code=status.HTTP_404_NOT_FOUND,
-        detail="Site not found",
-    )
