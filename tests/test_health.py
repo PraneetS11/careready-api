@@ -25,7 +25,7 @@ def test_liveness_is_independent_of_services():
     ],
 )
 def test_readiness_reports_dependency_outages(database, redis, expected):
-    with TestClient(create_app(Settings(_env_file=None))) as client:
+    with TestClient(create_app(Settings(_env_file=None, environment="test"))) as client:
         with patch(
             "app.api.health.check_dependencies",
             new=AsyncMock(return_value={"database": database, "redis": redis}),
@@ -41,7 +41,7 @@ def test_settings_are_environment_driven(monkeypatch):
 
 
 def test_readiness_handles_real_client_failures_without_leaking_secrets():
-    with TestClient(create_app(Settings(_env_file=None))) as client:
+    with TestClient(create_app(Settings(_env_file=None, environment="test"))) as client:
         with patch.object(
             type(client.app.state.engine), "connect", side_effect=RuntimeError("secret")
         ):

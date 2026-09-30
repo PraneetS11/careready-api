@@ -1,4 +1,6 @@
-from pydantic import BaseModel
+from uuid import UUID
+
+from pydantic import BaseModel, ConfigDict
 
 
 class SiteCreate(BaseModel):
@@ -6,6 +8,12 @@ class SiteCreate(BaseModel):
     city: str
     timezone: str
     active: bool = True
+
+
+class SiteRead(SiteCreate):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: UUID
 
 
 class SiteUpdate(BaseModel):
