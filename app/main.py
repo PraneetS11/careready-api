@@ -30,3 +30,6 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
 
 app = create_app()
+@app.get("/")
+async def read_root():
+    return {"message": "CareReady API"}
