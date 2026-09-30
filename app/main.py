@@ -1,6 +1,8 @@
 from contextlib import asynccontextmanager
+from typing import Optional
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Header
+from pydantic import BaseModel
 from redis.asyncio import Redis
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
@@ -35,3 +37,43 @@ app = create_app()
 @app.get("/")
 async def read_root():
     return {"message": "CareReady API"}
+
+
+@app.get("/practice/sites/{site_name}/welcome")
+async def greet_site(site_name: str) -> dict:
+    return {"message": f"Welcome to the {site_name} office!!"}
+
+
+@app.get("/practice/site-preview")
+async def preview_site(city: str = "Hamilton", active: bool = True) -> dict:
+    return {"city": city, "active": active}
+
+
+class SiteCreateModel(BaseModel):
+    name: str
+    city: str
+    timezone: str
+    active: bool = True
+
+
+@app.post("/create_site")
+async def create_site(site_data: SiteCreateModel) -> dict:
+    return {
+        "name": site_data.name,
+        "city": site_data.city,
+        "timezone": site_data.timezone,
+        "active": site_data.active,
+    }
+
+
+@app.get("/practice/headers")
+async def get_headers(
+    accept: Optional[str] = Header(None),
+    content_type: Optional[str] = Header(None),
+    host: Optional[str] = Header(None),
+) -> dict:
+    return {
+        "Accept": accept,
+        "Content-Type": content_type,
+        "Host": host,
+    }
