@@ -1,7 +1,7 @@
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, Response, status
+from fastapi import APIRouter, Depends, Response, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.dependencies import RoleChecker, get_current_user
@@ -23,8 +23,6 @@ async def get_all_sites(session: Session, active: bool | None = None):
 @router.get("/{site_id}", response_model=SiteRead)
 async def get_site(site_id: UUID, session: Session):
     site = await site_service.get_site(site_id, session)
-    if site is None:
-        raise HTTPException(status_code=404, detail="Site not found")
     return site
 
 
@@ -43,8 +41,6 @@ async def create_site(
 @router.patch("/{site_id}", response_model=SiteRead, dependencies=[Depends(RoleChecker(["admin"]))])
 async def update_site(site_id: UUID, site_update_data: SiteUpdate, session: Session):
     site = await site_service.update_site(site_id, site_update_data, session)
-    if site is None:
-        raise HTTPException(status_code=404, detail="Site not found")
     return site
 
 
@@ -54,7 +50,5 @@ async def update_site(site_id: UUID, site_update_data: SiteUpdate, session: Sess
     dependencies=[Depends(RoleChecker(["admin"]))],
 )
 async def delete_site(site_id: UUID, session: Session):
-    site = await site_service.delete_site(site_id, session)
-    if site is None:
-        raise HTTPException(status_code=404, detail="Site not found")
+    await site_service.delete_site(site_id, session)
     return Response(status_code=status.HTTP_204_NO_CONTENT)

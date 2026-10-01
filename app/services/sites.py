@@ -3,6 +3,7 @@ from uuid import UUID
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import select
 
+from app.errors import SiteNotFound
 from app.models.sites import Site
 from app.schemas.sites import SiteCreate, SiteUpdate
 
@@ -17,7 +18,10 @@ class SiteService:
 
     async def get_site(self, site_id: UUID, session: AsyncSession):
         result = await session.execute(select(Site).where(Site.id == site_id))
-        return result.scalars().first()
+        site = result.scalars().first()
+        if site is None:
+            raise SiteNotFound()
+        return site
 
     async def create_site(self, data: SiteCreate, session: AsyncSession, creator=None):
         site = Site(**data.model_dump(), created_by_user_id=creator.id if creator else None)
@@ -33,8 +37,6 @@ class SiteService:
 
     async def update_site(self, site_id: UUID, data: SiteUpdate, session: AsyncSession):
         site = await self.get_site(site_id, session)
-        if site is None:
-            return None
         try:
             site.active = data.active
             await session.commit()
@@ -46,8 +48,6 @@ class SiteService:
 
     async def delete_site(self, site_id: UUID, session: AsyncSession):
         site = await self.get_site(site_id, session)
-        if site is None:
-            return None
         try:
             await session.delete(site)
             await session.commit()

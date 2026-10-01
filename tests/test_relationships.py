@@ -5,6 +5,7 @@ import pytest
 from fastapi import HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.errors import SiteNotFound
 from app.models import Site, SiteTag, User
 from app.schemas.site_notes import SiteNoteCreate
 from app.schemas.sites import SiteCreate
@@ -17,11 +18,10 @@ from app.services.sites import SiteService
 async def test_note_unknown_site_is_404():
     session = AsyncMock(spec=AsyncSession)
     session.get.return_value = None
-    with pytest.raises(HTTPException) as error:
+    with pytest.raises(SiteNotFound):
         await SiteNoteService().create_note(
             uuid4(), uuid4(), SiteNoteCreate(text="Fictional equipment check"), session
         )
-    assert error.value.status_code == 404
     session.commit.assert_not_awaited()
 
 

@@ -12,6 +12,7 @@ from app.api.site_notes import router as notes_router
 from app.api.site_tags import router as tags_router
 from app.api.sites import router as sites_router
 from app.core.config import Settings
+from app.errors import register_error_handlers
 
 
 def create_app(settings: Settings | None = None) -> FastAPI:
@@ -53,6 +54,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         lifespan=lifespan,
     )
 
+    register_error_handlers(app)
     app.state.settings = config
 
     app.include_router(notes_router, prefix="/api/v1", tags=["site notes"])

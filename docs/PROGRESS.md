@@ -17,7 +17,7 @@ Record real date and proof before the chapter commit; add its SHA in the next do
 | [x] | CH09 | 6:07:39 | JWT authentication | 2026-10-01 | | Login, protected CRUD, refresh and Redis revocation verified live; restart retains revocation; 32 tests and full lint pass. |
 | [x] | CH10 | 6:39:24 | Role-based access control | 2026-10-01 | | 37 tests and lint pass; migration/no drift; live role enforcement, current account and deactivation verified. |
 | [x] | CH11 | 7:59:58 | Model and schema relationships | 2026-10-01 | | 43 tests/lint; migration no drift; live creator, note isolation, shared tags/idempotence and restart checks pass. |
-| [ ] | CH12 | 8:33:25 | Error handling | | | |
+| [x] | CH12 | 8:33:25 | Error handling | 2026-10-01 | | 46 tests/lint; stable site_not_found on reads, edits, deletes and note access; live relationship regressions pass. |
 | [ ] | CH13 | 9:05:04 | Middleware | | | |
 | [ ] | CH14 | 10:40:38 | Email support | | | |
 | [ ] | CH15 | 11:23:48 | Background processing | | | |
@@ -153,3 +153,8 @@ Record real date and proof before the chapter commit; add its SHA in the next do
 ## CH11 verification
 
 See CHAPTER11.md for schema, routes, historical-row handling and live verification. CH10 feature commit: `7b5e0b341c405b14c30888926f0904eebae44508`; its GitHub API checks passed. CH11 feature SHA belongs in the next documentation update.
+
+## CH12 verification
+
+- `SiteNotFound` is raised by site lookup and registered once in the application factory. Read/update/delete and missing-site note/tag paths produce the same 404 message/code without internal details. Existing authentication, validation 422 and successful response contracts remain intact.
+- 46 tests and full lint pass. Regression tests check GET/PATCH/DELETE error bodies and malformed IDs; live relationship checks confirm missing-resource envelopes, successful writes and restart persistence. CH11 feature commit: `2da7fa1552cf28076ddfc2c81ab393e62a8f8903`; GitHub checks passed.

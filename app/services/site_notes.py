@@ -1,13 +1,13 @@
-from fastapi import HTTPException
 from sqlmodel import select
 
+from app.errors import SiteNotFound
 from app.models import Site, SiteNote
 
 
 class SiteNoteService:
     async def require_site(self, site_id, session):
         if await session.get(Site, site_id) is None:
-            raise HTTPException(404, "Site not found")
+            raise SiteNotFound()
 
     async def list_notes(self, site_id, session):
         await self.require_site(site_id, session)

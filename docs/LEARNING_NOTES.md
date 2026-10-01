@@ -80,3 +80,7 @@ Authentication validates the token and identifies a live account. Authorization 
 ## CH11: relationships
 
 A foreign key connects a site to its creator and each note to its site and author. A relationship exposes those links to Python; small response schemas control what HTTP reveals. The site/tag link table represents many-to-many membership and its composite key prevents duplicate membership. Async reads must load related data while the session is available.
+
+## CH12: domain errors
+
+The service raises SiteNotFound to describe the failure. A central handler translates it into an HTTP 404 with a stable code and message. Input validation and authentication keep their own error behavior. Clients should branch on codes rather than parsing prose; responses must not contain tracebacks or credentials.
