@@ -1,6 +1,6 @@
 # Learning notes
 
-## CH05: database model and startup
+## CH05: database model and startup (state at that checkpoint)
 
 - **Python app:** the FastAPI process receives HTTP requests and runs Python code.
 - **PostgreSQL process:** a separate server stores relational data. The existing
@@ -30,3 +30,22 @@
 - **Chapter boundary:** HTTP site CRUD still uses the Chapter 4 in-memory list
   and integer route ids. It does not write to the new UUID table, and its changes
   are lost on process restart. Database-backed CRUD and route UUIDs come in CH06.
+
+## CH06: persisted site CRUD
+
+- HTTP site CRUD now uses PostgreSQL and UUID route ids. The Chapter 4 in-memory
+  module has been removed; this supersedes CH05's temporary storage limitation.
+- Request -> `Depends(get_session)` -> `SiteService` -> PostgreSQL -> `SiteRead`.
+  FastAPI validates UUIDs and input bodies before calling the service. A malformed
+  UUID/body is 422; a valid UUID with no record is 404.
+- This project retains SQLAlchemy `AsyncSession`, so reads use
+  `await session.execute(select(Site))` and then `scalars().all()` or `first()`.
+  Bookly uses SQLModel `AsyncSession.exec()` instead; the two APIs differ.
+- List filtering uses `WHERE Site.active = ...` in SQL. `active=false` is distinct
+  from omitting the filter. Routes delegate database work to the service.
+- Create adds a Site, commits and refreshes it. Update changes only `active`,
+  commits and refreshes. Delete awaits `session.delete` and commits. Failed
+  writes roll back and propagate the error; missing records return None so the
+  route can return 404. Successful create/delete retain 201/204 status codes.
+- Returning `SiteRead` keeps responses limited to the public schema. Committed
+  records survive API restarts because storage belongs to PostgreSQL, not Python.

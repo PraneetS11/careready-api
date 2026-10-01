@@ -1,75 +1,47 @@
-from fastapi import APIRouter, HTTPException, status
+from typing import Annotated
+from uuid import UUID
 
-from app.api import site_data
-from app.schemas.sites import SiteCreate, SiteUpdate
+from fastapi import APIRouter, Depends, HTTPException, Response, status
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.db.session import get_session
+from app.schemas.sites import SiteCreate, SiteRead, SiteUpdate
+from app.services.sites import SiteService
 
 router = APIRouter()
+site_service = SiteService()
+Session = Annotated[AsyncSession, Depends(get_session)]
 
 
-@router.get("")
-async def get_all_sites(
-    active: bool | None = None,
-) -> list[dict]:
-    if active is None:
-        return site_data.sites
-
-    return [site for site in site_data.sites if site["active"] == active]
+@router.get("", response_model=list[SiteRead])
+async def get_all_sites(session: Session, active: bool | None = None):
+    return await site_service.get_all_sites(session, active)
 
 
-@router.get("/{site_id}")
-async def get_site(site_id: int) -> dict:
-    for site in site_data.sites:
-        if site["id"] == site_id:
-            return site
-
-    raise HTTPException(
-        status_code=status.HTTP_404_NOT_FOUND,
-        detail="Site not found",
-    )
+@router.get("/{site_id}", response_model=SiteRead)
+async def get_site(site_id: UUID, session: Session):
+    site = await site_service.get_site(site_id, session)
+    if site is None:
+        raise HTTPException(status_code=404, detail="Site not found")
+    return site
 
 
-@router.post(
-    "",
-    status_code=status.HTTP_201_CREATED,
-)
-async def create_site(site_data_input: SiteCreate) -> dict:
-    new_site = site_data_input.model_dump()
-
-    new_site["id"] = site_data.next_id
-    site_data.next_id += 1
-
-    site_data.sites.append(new_site)
-
-    return new_site
+@router.post("", status_code=status.HTTP_201_CREATED, response_model=SiteRead)
+async def create_site(site_data_input: SiteCreate, session: Session):
+    return await site_service.create_site(site_data_input, session)
 
 
-@router.patch("/{site_id}")
-async def update_site(
-    site_id: int,
-    site_update_data: SiteUpdate,
-) -> dict:
-    for site in site_data.sites:
-        if site["id"] == site_id:
-            site["active"] = site_update_data.active
-            return site
-
-    raise HTTPException(
-        status_code=status.HTTP_404_NOT_FOUND,
-        detail="Site not found",
-    )
+@router.patch("/{site_id}", response_model=SiteRead)
+async def update_site(site_id: UUID, site_update_data: SiteUpdate, session: Session):
+    site = await site_service.update_site(site_id, site_update_data, session)
+    if site is None:
+        raise HTTPException(status_code=404, detail="Site not found")
+    return site
 
 
-@router.delete(
-    "/{site_id}",
-    status_code=status.HTTP_204_NO_CONTENT,
-)
-async def delete_site(site_id: int):
-    for site in site_data.sites:
-        if site["id"] == site_id:
-            site_data.sites.remove(site)
-            return
-
-    raise HTTPException(
-        status_code=status.HTTP_404_NOT_FOUND,
-        detail="Site not found",
-    )
+@router.delete("/{site_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_site(site_id: UUID, session: Session):
+    site = await site_service.delete_site(site_id, session)
+    if site is None:
+        raise HTTPException(status_code=404, detail="Site not found")
+    return Response(status_code=status.HTTP_204_NO_CONTENT)

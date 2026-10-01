@@ -11,7 +11,7 @@ Record real date and proof before the chapter commit; add its SHA in the next do
 | [ ] | CH03 | 1:23:37 | Building a CRUD REST API | | | |
 | [ ] | CH04 | 1:38:22 | Large project structure using routers | | | |
 | [x] | CH05 | 2:29:48 | Databases with SQLModel | 2026-09-30 | 4b95de6 | Local PostgreSQL/Redis healthy; readiness 200 on two startups; one site table with UUID primary key and all five required columns; clean shutdown twice; 8 tests pass. See verification below. |
-| [ ] | CH06 | 3:33:35 | Finishing the database CRUD | | | |
+| [x] | CH06 | 3:33:35 | Finishing the database CRUD | 2026-09-30 | | PostgreSQL CRUD verified over HTTP; create/update survive separate API process restarts; filter, 201/204/404/422 checks pass; 15 tests and full lint pass. |
 | [ ] | CH07 | 3:59:57 | Creating the user authentication model | | | |
 | [ ] | CH08 | 4:42:57 | User account creation | | | |
 | [ ] | CH09 | 6:07:39 | JWT authentication | | | |
@@ -44,3 +44,21 @@ Record real date and proof before the chapter commit; add its SHA in the next do
 - HTTP site CRUD still uses memory and integer ids until CH06. Table initialization
   runs only in development; tests explicitly use the test environment.
 - Implementation committed and pushed as `4b95de6`; recorded in this follow-up.
+
+## CH06 verification
+
+- Reused the existing engine, SQLAlchemy AsyncSession and per-request dependency.
+  SiteService owns database operations and write rollback; routes expose SiteRead.
+  Removed the unused in-memory site_data module.
+- Live verification used the configured local PostgreSQL and Redis services and
+  temporary API processes. Initial site list was empty; readiness returned 200.
+- Created a unique test site (201), fetched and listed its UUID, stopped the API
+  process and started a new one, and retrieved the same record. Patched active to
+  false, restarted the API process again, and verified the update persisted.
+- SQL active=true/false filters excluded/included that UUID correctly. Deleted
+  the test site (204 with empty body); subsequent GET and DELETE returned 404.
+  Valid unknown UUIDs returned 404 for GET/PATCH/DELETE; malformed UUIDs and
+  invalid create/update bodies returned 422. All test-created records were removed.
+- `make lint`, `make test` (15 passed), and compileall passed. Tests cover response
+  contracts, UUID/body validation, SQL filters and rollback for failed writes.
+- Feature SHA is intentionally blank until a later documentation update.
