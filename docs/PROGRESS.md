@@ -11,8 +11,8 @@ Record real date and proof before the chapter commit; add its SHA in the next do
 | [ ] | CH03 | 1:23:37 | Building a CRUD REST API | | | |
 | [ ] | CH04 | 1:38:22 | Large project structure using routers | | | |
 | [x] | CH05 | 2:29:48 | Databases with SQLModel | 2026-09-30 | 4b95de6 | Local PostgreSQL/Redis healthy; readiness 200 on two startups; one site table with UUID primary key and all five required columns; clean shutdown twice; 8 tests pass. See verification below. |
-| [x] | CH06 | 3:33:35 | Finishing the database CRUD | 2026-09-30 | | PostgreSQL CRUD verified over HTTP; create/update survive separate API process restarts; filter, 201/204/404/422 checks pass; 15 tests and full lint pass. |
-| [ ] | CH07 | 3:59:57 | Creating the user authentication model | | | |
+| [x] | CH06 | 3:33:35 | Finishing the database CRUD | 2026-09-30 | 2193bf4 | PostgreSQL CRUD verified over HTTP; create/update survive separate API process restarts; filter, 201/204/404/422 checks pass; 15 tests and full lint pass. |
+| [x] | CH07 | 3:59:57 | Creating the user authentication model | 2026-09-30 | | Empty careready_ch07 upgraded to c8af9d233c2f; repeat upgrade and schema check passed; safe UserRead and unique email verified; site create/list/restart passed without startup DDL; original practice rows preserved; 15 tests and lint pass. |
 | [ ] | CH08 | 4:42:57 | User account creation | | | |
 | [ ] | CH09 | 6:07:39 | JWT authentication | | | |
 | [ ] | CH10 | 6:39:24 | Role-based access control | | | |
@@ -62,3 +62,26 @@ Record real date and proof before the chapter commit; add its SHA in the next do
 - `make lint`, `make test` (15 passed), and compileall passed. Tests cover response
   contracts, UUID/body validation, SQL filters and rollback for failed writes.
 - Feature SHA is intentionally blank until a later documentation update.
+
+## CH07 verification
+
+- Followed chapter-guide pages 28-30 using the existing app/models, app/schemas,
+  Settings, application factory, engine and session architecture.
+- User has UUID id, unique email, password_hash, is_verified=False and a
+  timezone-aware database-generated created_at. UserRead exposes only public
+  fields. A real-database check confirmed defaults, public serialization and
+  duplicate-email rejection; temporary user inserts were rolled back.
+- Generated the complete Site/User initial migration from a new empty local
+  database, careready_ch07. Reviewed and applied revision c8af9d233c2f; a second
+  upgrade made no changes and alembic check reported no new operations.
+- Removed development startup create_all while preserving resource cleanup.
+  With create_all patched to fail if called, readiness returned 200 and site
+  create (201), list and read after a second application lifespan succeeded.
+  Deleted the verification site (204).
+- Compared original practice-site rows before and after: unchanged. Only after
+  successful verification, changed the ignored local .env to the new database.
+  docs/DEVELOPMENT.md explains the baseline and migration workflow.
+- make test: 15 passed. make lint: passed. The pre-existing Starlette/httpx
+  deprecation warning remains. No new signup/login routes or Chapter 8 behavior.
+- CH06 feature SHA recorded above. CH07 SHA will be recorded in a later update,
+  because this commit cannot include its own final SHA.

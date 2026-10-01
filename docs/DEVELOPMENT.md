@@ -48,3 +48,49 @@ Deploy API and workers separately; run Alembic as a controlled release step once
 ## Timestamp-aligned development
 
 Use BUILD_PROGRESSION.md for watch ranges and exact commit checkpoints, and PROGRESS.md to record real dates, SHAs, and evidence. Video time is a pause marker; commit only after the relevant behavior and tests pass. Existing setup commits are already complete and must not be recreated.
+
+## Chapter 7: migration-managed development database
+
+The original `careready` database remains separate with its practice rows intact.
+On 2026-09-30, created the empty local database `careready_ch07`, generated and
+reviewed revision `c8af9d233c2f`, and applied it before changing the ignored local
+`.env` DATABASE_URL to target that database. No credentials are stored in Alembic
+configuration. The complete initial revision creates `site` and `user`, with
+UUID primary keys, a unique user email and a timezone-aware creation timestamp.
+
+For this existing local setup, start services and migrate before starting the API:
+
+```bash
+make services
+.venv/bin/python -m alembic upgrade head
+make run
+```
+
+For a fresh local setup, create an empty database using the configured local
+PostgreSQL role, set the ignored `.env` DATABASE_URL to it, then run the same
+migration command. Do not apply this initial migration over the old practice
+schema or blindly stamp it as migrated. Preserve that database until any desired
+data transfer has been planned separately. Configuration continues to come from
+Settings; an environment DATABASE_URL overrides `.env`.
+
+Application startup no longer runs `create_all`; it still owns engine and Redis
+cleanup. The unused Chapter 5 helper remains for historical reference, not as a
+startup step. For future model changes, import each table in `migrations/env.py`,
+generate a revision, review it, then upgrade. Check schema agreement with:
+
+```bash
+.venv/bin/python -m alembic current
+.venv/bin/python -m alembic check
+```
+
+`UserRead` contains only id, email, is_verified and created_at. The stored
+password_hash is excluded: a storage model must not be used as a public response
+or future password input schema. This chapter adds no account creation or login
+routes.
+
+Verification: empty-database upgrade and repeat upgrade passed; Alembic reported
+no new operations. Real PostgreSQL rejected duplicate emails. Site create/list
+and read after a fresh app lifespan passed without startup DDL; the verification
+site was deleted. The original database's site rows were unchanged. Existing
+15 tests and full lint pass; the existing Starlette/httpx deprecation warning
+remains.

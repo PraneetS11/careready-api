@@ -9,7 +9,6 @@ from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 from app.api.health import router as health_router
 from app.api.sites import router as sites_router
 from app.core.config import Settings
-from app.db.init_db import init_db
 
 
 def create_app(settings: Settings | None = None) -> FastAPI:
@@ -38,8 +37,6 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         app.state.redis = cache
 
         try:
-            if config.environment == "development":
-                await init_db(engine)
             yield
         finally:
             await cache.aclose()
