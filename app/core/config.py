@@ -5,6 +5,10 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
+    mail_port: int = 1027
+    public_base_url: str = "http://127.0.0.1:8002"
+    mail_link_seconds: int = Field(default=3600, gt=0)
+
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
     cors_origins: list[str] = ["http://localhost:3000", "http://localhost:5173"]
     allowed_hosts: list[str] = ["localhost", "127.0.0.1"]

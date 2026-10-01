@@ -11,6 +11,7 @@ from app.api.dependencies import (
     require_token,
     unauthorized,
 )
+from app.api.email_routes import send_account_link, settings_for
 from app.core.security import create_token, verify_password
 from app.db.session import get_session
 from app.db.token_store import add_jti_to_blocklist
@@ -22,9 +23,11 @@ user_service = UserService()
 
 
 @router.post("/signup", response_model=UserRead, status_code=status.HTTP_201_CREATED)
-async def signup(data: UserCreate, session: AsyncSession = Depends(get_session)):
+async def signup(data: UserCreate, request: Request, session: AsyncSession = Depends(get_session)):
     try:
-        return await user_service.create_user(data, session)
+        user = await user_service.create_user(data, session)
+        await send_account_link(user, settings_for(request), "verify")
+        return user
     except DuplicateEmailError:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,

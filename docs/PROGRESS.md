@@ -19,7 +19,7 @@ Record real date and proof before the chapter commit; add its SHA in the next do
 | [x] | CH11 | 7:59:58 | Model and schema relationships | 2026-10-01 | | 43 tests/lint; migration no drift; live creator, note isolation, shared tags/idempotence and restart checks pass. |
 | [x] | CH12 | 8:33:25 | Error handling | 2026-10-01 | | 46 tests/lint; stable site_not_found on reads, edits, deletes and note access; live relationship regressions pass. |
 | [x] | CH13 | 9:05:04 | Middleware | 2026-10-01 | | 49 tests/full lint; live safe logs, CORS/preflight, invalid hosts, docs and authentication checks pass. |
-| [ ] | CH14 | 10:40:38 | Email support | | | |
+| [x] | CH14 | 10:40:38 | Email support | 2026-10-01 | | 52 tests/lint; local SMTP verification/recovery and restart checks pass. See CHAPTER14.md. |
 | [ ] | CH15 | 11:23:48 | Background processing | | | |
 | [ ] | CH16 | 11:36:02 | API documentation | | | |
 | [ ] | CH17 | 12:09:17 | Testing: pytest, mocks and Schemathesis | | | |
@@ -162,3 +162,7 @@ See CHAPTER11.md for schema, routes, historical-row handling and live verificati
 ## CH13 verification
 
 See CHAPTER13.md for configuration and verified policy behavior. Method, route template, status and timing are logged without credential-bearing request data. Success/error responses and authentication remain intact. CH12 feature commit: `7403cef2001fa0f4c4cb16f285c21ecad7ab13a3`. CH14–CH18 remain pending; no email delivery, background worker or deployment completion is claimed.
+
+## CH14 verification
+
+See CHAPTER14.md for local mail setup, observed results and the remaining one-use/session-invalidation limitations. CH13 feature commit: `644601a64c299c873bc1ffdb45a6697c005a4907`. CH14 SHA will be recorded in a subsequent update.

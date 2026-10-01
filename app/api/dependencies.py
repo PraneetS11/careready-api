@@ -62,6 +62,8 @@ class RoleChecker:
         self.allowed_roles = frozenset(allowed_roles)
 
     async def __call__(self, user: User = Depends(get_current_user)) -> User:
+        if not user.is_verified:
+            raise HTTPException(403, "Verify your email before using this action")
         if user.role not in self.allowed_roles:
             raise HTTPException(403, "You are not allowed to perform this action")
         return user

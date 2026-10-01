@@ -26,6 +26,7 @@ def auth():
     app = create_app(settings)
     session = AsyncMock(spec=AsyncSession)
     user = User(
+        is_verified=True,
         id=uuid4(),
         email="demo@example.com",
         password_hash=hash_password(PASSWORD),

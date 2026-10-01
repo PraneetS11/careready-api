@@ -17,7 +17,10 @@ from app.schemas.users import UserCreate
 @pytest.fixture
 def role_client():
     user = User(
-        email="roles@example.com", password_hash="hidden", created_at=datetime.now(timezone.utc)
+        is_verified=True,
+        email="roles@example.com",
+        password_hash="hidden",
+        created_at=datetime.now(timezone.utc),
     )
     session = AsyncMock(spec=AsyncSession)
     session.get.return_value = user
@@ -72,4 +75,9 @@ def test_admin_create_and_signup_cannot_choose_role(role_client):
             email="roles@example.com", password="long-password", role="admin"
         ).model_dump()
     )
-    assert User().role == "coordinator"
+    assert (
+        User(
+            is_verified=True,
+        ).role
+        == "coordinator"
+    )

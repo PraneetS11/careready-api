@@ -7,6 +7,7 @@ from redis.asyncio import Redis
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
 from app.api.auth import router as auth_router
+from app.api.email_routes import router as email_router
 from app.api.health import router as health_router
 from app.api.site_notes import router as notes_router
 from app.api.site_tags import router as tags_router
@@ -61,6 +62,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     app.include_router(notes_router, prefix="/api/v1", tags=["site notes"])
     app.include_router(tags_router, prefix="/api/v1", tags=["site tags"])
+    app.include_router(email_router, prefix="/api/v1/auth", tags=["auth"])
     app.include_router(health_router)
     app.include_router(auth_router, prefix="/api/v1/auth", tags=["auth"])
 

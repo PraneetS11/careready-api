@@ -112,3 +112,7 @@ you present. Keep the existing Redis service running for validation and logout.
 ## CH13 request policies
 
 See CHAPTER13.md and `.env.example` for JSON-list origin and host configuration. Local API docs remain available; testserver is accepted only in test mode unless explicitly configured. Request logs contain route templates rather than raw URLs.
+
+## CH14 local mail
+
+See CHAPTER14.md for the isolated mail catcher and verification/recovery routes. Existing accounts must verify before role-based business actions. No external SMTP delivery is configured.

@@ -25,7 +25,7 @@ def test_missing_site_has_stable_safe_error(method, body):
         yield session
 
     app.dependency_overrides[get_session] = override
-    app.dependency_overrides[get_current_user] = lambda: User(role="admin")
+    app.dependency_overrides[get_current_user] = lambda: User(is_verified=True, role="admin")
     with TestClient(app) as client:
         kwargs = {} if body is None else {"json": body}
         response = client.request(method, f"/api/v1/sites/{uuid4()}", **kwargs)

@@ -33,7 +33,7 @@ def client(session):
 
     app.dependency_overrides[get_session] = override_session
     app.dependency_overrides[get_current_user] = lambda: User(
-        role="admin", email="admin@example.com"
+        is_verified=True, role="admin", email="admin@example.com"
     )
     with TestClient(app) as client:
         yield client
