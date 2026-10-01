@@ -1,8 +1,9 @@
 from datetime import datetime
+from typing import TYPE_CHECKING
 from uuid import UUID, uuid4
 
 from sqlalchemy import Boolean, Column, DateTime, String, func
-from sqlmodel import Field, SQLModel
+from sqlmodel import Field, Relationship, SQLModel
 
 
 class User(SQLModel, table=True):
@@ -21,3 +22,15 @@ class User(SQLModel, table=True):
     created_at: datetime = Field(
         sa_column=Column(DateTime(timezone=True), nullable=False, server_default=func.now())
     )
+
+    sites: list["Site"] = Relationship(
+        back_populates="creator", sa_relationship_kwargs={"passive_deletes": "all"}
+    )
+    notes: list["SiteNote"] = Relationship(
+        back_populates="author", sa_relationship_kwargs={"passive_deletes": "all"}
+    )
+
+
+if TYPE_CHECKING:
+    from app.models.site_notes import SiteNote
+    from app.models.sites import Site

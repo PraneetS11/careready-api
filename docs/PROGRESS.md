@@ -16,7 +16,7 @@ Record real date and proof before the chapter commit; add its SHA in the next do
 | [x] | CH08 | 4:42:57 | User account creation | 2026-10-01 | | Signup 201 with safe fields; normalized duplicate 409; invalid input 422; Argon2 correct/wrong verification; concurrent uniqueness conflict rolls back; 15 tests, lint and dependency check pass. |
 | [x] | CH09 | 6:07:39 | JWT authentication | 2026-10-01 | | Login, protected CRUD, refresh and Redis revocation verified live; restart retains revocation; 32 tests and full lint pass. |
 | [x] | CH10 | 6:39:24 | Role-based access control | 2026-10-01 | | 37 tests and lint pass; migration/no drift; live role enforcement, current account and deactivation verified. |
-| [ ] | CH11 | 7:59:58 | Model and schema relationships | | | |
+| [x] | CH11 | 7:59:58 | Model and schema relationships | 2026-10-01 | | 43 tests/lint; migration no drift; live creator, note isolation, shared tags/idempotence and restart checks pass. |
 | [ ] | CH12 | 8:33:25 | Error handling | | | |
 | [ ] | CH13 | 9:05:04 | Middleware | | | |
 | [ ] | CH14 | 10:40:38 | Email support | | | |
@@ -149,3 +149,7 @@ Record real date and proof before the chapter commit; add its SHA in the next do
 - Applied the additive migration to the configured development database; repeated upgrade and Alembic schema comparison pass. Existing accounts receive the safe coordinator default.
 - `make test`: 37 passed; `make lint` passes. Live fictional-account tests verify safe signup, coordinator write rejection for POST/PATCH/DELETE, role promotion taking effect with an existing token, inactive/deleted rejection, admin CRUD, and CH09 refresh/revocation behavior including restart. Verification records and exact Redis keys were cleaned up.
 - CH09 feature commit: `baf2c72fb519b34d3945f9866c1f54069a4a2768`. CH10 SHA will be recorded in a later update.
+
+## CH11 verification
+
+See CHAPTER11.md for schema, routes, historical-row handling and live verification. CH10 feature commit: `7b5e0b341c405b14c30888926f0904eebae44508`; its GitHub API checks passed. CH11 feature SHA belongs in the next documentation update.

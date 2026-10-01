@@ -32,7 +32,9 @@ def client(session):
         yield session
 
     app.dependency_overrides[get_session] = override_session
-    app.dependency_overrides[get_current_user] = lambda: User(role="admin")
+    app.dependency_overrides[get_current_user] = lambda: User(
+        role="admin", email="admin@example.com"
+    )
     with TestClient(app) as client:
         yield client
 
@@ -43,7 +45,15 @@ def test_crud_response_contract(client, session):
     session.execute.return_value.scalars.return_value.all.return_value = [site]
     created = client.post("/api/v1/sites", json=VALUES)
     assert created.status_code == 201
-    assert set(created.json()) == {"id", "name", "city", "timezone", "active"}
+    assert set(created.json()) == {
+        "id",
+        "name",
+        "city",
+        "timezone",
+        "active",
+        "created_by_user_id",
+        "creator",
+    }
     session.commit.assert_awaited_once()
     assert client.get(f"/api/v1/sites/{site.id}").json()["id"] == str(site.id)
     assert client.get("/api/v1/sites?active=true").json()[0]["id"] == str(site.id)

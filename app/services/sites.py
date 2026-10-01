@@ -19,8 +19,9 @@ class SiteService:
         result = await session.execute(select(Site).where(Site.id == site_id))
         return result.scalars().first()
 
-    async def create_site(self, data: SiteCreate, session: AsyncSession):
-        site = Site(**data.model_dump())
+    async def create_site(self, data: SiteCreate, session: AsyncSession, creator=None):
+        site = Site(**data.model_dump(), created_by_user_id=creator.id if creator else None)
+        site.creator = creator
         try:
             session.add(site)
             await session.commit()

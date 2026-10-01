@@ -76,3 +76,7 @@
 ## CH10: authentication and authorization
 
 Authentication validates the token and identifies a live account. Authorization checks its current database role against the route policy. The JWT does not grant a permanent role: promotion or deactivation takes effect on the next request. Coordinators can read sites; admins can also change them. Signup never accepts a privileged role.
+
+## CH11: relationships
+
+A foreign key connects a site to its creator and each note to its site and author. A relationship exposes those links to Python; small response schemas control what HTTP reveals. The site/tag link table represents many-to-many membership and its composite key prevents duplicate membership. Async reads must load related data while the session is available.

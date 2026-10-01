@@ -4,8 +4,9 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.dependencies import RoleChecker
+from app.api.dependencies import RoleChecker, get_current_user
 from app.db.session import get_session
+from app.models.users import User
 from app.schemas.sites import SiteCreate, SiteRead, SiteUpdate
 from app.services.sites import SiteService
 
@@ -33,8 +34,10 @@ async def get_site(site_id: UUID, session: Session):
     response_model=SiteRead,
     dependencies=[Depends(RoleChecker(["admin"]))],
 )
-async def create_site(site_data_input: SiteCreate, session: Session):
-    return await site_service.create_site(site_data_input, session)
+async def create_site(
+    site_data_input: SiteCreate, session: Session, user: User = Depends(get_current_user)
+):
+    return await site_service.create_site(site_data_input, session, creator=user)
 
 
 @router.patch("/{site_id}", response_model=SiteRead, dependencies=[Depends(RoleChecker(["admin"]))])
