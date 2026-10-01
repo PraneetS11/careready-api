@@ -1,0 +1,11 @@
+# Chapter 15: background mail
+
+The final signup/verification/reset path publishes JSON data to Celery. API success means an account was created or the request was accepted, not that mail was delivered. The worker owns its own SMTP operation; no request/session objects cross the queue. Broker publication failure is visible on signup; recovery requests keep a generic response and log failure without identifying the account.
+
+Start services and the Chapter 14 catcher, then run `.venv/bin/celery -A app.tasks:celery_app worker --pool=solo --concurrency=1 --loglevel=INFO`. Run `.venv/bin/celery -A app.tasks:celery_app flower --address=127.0.0.1 --port=5555` separately for local monitoring. Stop each foreground process with Ctrl-C. Flower is local only; never expose it publicly without authentication. Task arguments are redacted in events; broker payloads still contain mail data and require protection.
+
+Broker Redis database 1 and result database 2 are separate from revocation database 0. Settings and `.env.example` define URLs. Results expire after one hour. Queued work survives a stopped worker when Redis retains it; Redis persistence, retries and exactly-once delivery are not promised. Worker crashes or broker loss can lose work, and links can expire while queued. A transactional outbox is future work.
+
+For the earlier in-process experiment, run `.venv/bin/uvicorn scripts.background_mail_demo:app --host 127.0.0.1 --port=8090`, then POST `/demo`. It sends only a fixed fictional welcome to the local catcher after a delay. The 202 means scheduled, not delivered; terminating this process can lose the task. This experiment is separate from the final auth routes.
+
+Verified 2026-10-01: 54 unit tests pass. A real HTTP response arrived before the delayed BackgroundTasks mail. A task queued with the Celery worker stopped remained pending and was delivered after startup. Local Flower reported the worker and separate SUCCESS/FAILURE states for controlled sandbox tasks, without payload text. Live signup, verification and password reset passed through Celery, including new-password persistence after API restart. Test workers/Flower processes stopped and fictional records/messages were cleaned up.

@@ -116,3 +116,7 @@ See CHAPTER13.md and `.env.example` for JSON-list origin and host configuration.
 ## CH14 local mail
 
 See CHAPTER14.md for the isolated mail catcher and verification/recovery routes. Existing accounts must verify before role-based business actions. No external SMTP delivery is configured.
+
+## CH15 workers
+
+Follow CHAPTER15.md to start and stop the separate worker and local Flower monitor. Signup/recovery now needs a running worker for actual mail delivery.

@@ -8,9 +8,9 @@ from starlette.concurrency import run_in_threadpool
 from app.core.security import hash_password as generate_password_hash
 from app.db.session import get_session
 from app.email_tokens import create_email_token, read_email_token
-from app.mail import send_mail
 from app.models.users import User
 from app.services.users import UserService
+from app.tasks import send_email
 
 router = APIRouter()
 service = UserService()
@@ -44,12 +44,15 @@ async def send_account_link(user, settings, purpose):
     token = create_email_token(secret_for(settings), user.id, purpose)
     action = "verify" if purpose == "verify" else "password-reset-confirm"
     link = settings.public_base_url.rstrip("/") + "/api/v1/auth/" + action + "/" + token
-    await send_mail(
-        settings,
-        user.email,
-        "Verify your account" if purpose == "verify" else "Reset your password",
-        "Use this expiring link: " + link,
-    )
+    try:
+        await run_in_threadpool(
+            send_email.delay,
+            user.email,
+            "Verify your account" if purpose == "verify" else "Reset your password",
+            "Use this expiring link: " + link,
+        )
+    except Exception:
+        raise HTTPException(503, "Mail could not be queued") from None
 
 
 @router.get("/verify/{token}")
@@ -79,7 +82,7 @@ async def verification_request(
         try:
             await send_account_link(user, settings_for(request), "verify")
         except HTTPException:
-            logging.getLogger("account_mail").error("Sandbox account email delivery failed")
+            logging.getLogger("account_mail").error("Account email could not be queued")
     return {"message": "If eligible, check the sandbox for verification instructions"}
 
 
@@ -92,7 +95,7 @@ async def reset_request(
         try:
             await send_account_link(user, settings_for(request), "reset")
         except HTTPException:
-            logging.getLogger("account_mail").error("Sandbox account email delivery failed")
+            logging.getLogger("account_mail").error("Account email could not be queued")
     return {"message": "If eligible, check the sandbox for reset instructions"}
 
 

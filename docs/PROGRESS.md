@@ -20,7 +20,7 @@ Record real date and proof before the chapter commit; add its SHA in the next do
 | [x] | CH12 | 8:33:25 | Error handling | 2026-10-01 | | 46 tests/lint; stable site_not_found on reads, edits, deletes and note access; live relationship regressions pass. |
 | [x] | CH13 | 9:05:04 | Middleware | 2026-10-01 | | 49 tests/full lint; live safe logs, CORS/preflight, invalid hosts, docs and authentication checks pass. |
 | [x] | CH14 | 10:40:38 | Email support | 2026-10-01 | | 52 tests/lint; local SMTP verification/recovery and restart checks pass. See CHAPTER14.md. |
-| [ ] | CH15 | 11:23:48 | Background processing | | | |
+| [x] | CH15 | 11:23:48 | Background processing | 2026-10-01 | | 54 tests/lint; real BackgroundTasks timing, stopped-worker queue recovery, Flower success/failure and queued auth mail verified. |
 | [ ] | CH16 | 11:36:02 | API documentation | | | |
 | [ ] | CH17 | 12:09:17 | Testing: pytest, mocks and Schemathesis | | | |
 | [ ] | CH18 | 12:52:54 | Deployment | | | |
@@ -166,3 +166,7 @@ See CHAPTER13.md for configuration and verified policy behavior. Method, route t
 ## CH14 verification
 
 See CHAPTER14.md for local mail setup, observed results and the remaining one-use/session-invalidation limitations. CH13 feature commit: `644601a64c299c873bc1ffdb45a6697c005a4907`. CH14 SHA will be recorded in a subsequent update.
+
+## CH15 verification
+
+See CHAPTER15.md for worker/Flower commands, live results and delivery limitations. CH14 feature commit: `58ab534`.

@@ -88,3 +88,7 @@ The service raises SiteNotFound to describe the failure. A central handler trans
 ## CH13: middleware
 
 Middleware wraps request handling and can observe both successful and handled-error responses. Timing uses a monotonic clock. CORS matches complete browser origins; trusted-host checks validate the Host header. Neither grants user permissions. Logs use route templates because path parameters, queries and headers can carry tokens.
+
+## CH15: accepted is not delivered
+
+BackgroundTasks runs after the HTTP response but shares the API process. Celery passes serializable work through Redis to a separate worker. We observed pending work delivered after the worker started and distinguished successful/failed tasks in local Flower. Neither an accepted response nor a queued task guarantees delivery; broker retention and worker failure matter.
