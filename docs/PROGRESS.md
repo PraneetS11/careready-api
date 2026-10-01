@@ -18,7 +18,7 @@ Record real date and proof before the chapter commit; add its SHA in the next do
 | [x] | CH10 | 6:39:24 | Role-based access control | 2026-10-01 | | 37 tests and lint pass; migration/no drift; live role enforcement, current account and deactivation verified. |
 | [x] | CH11 | 7:59:58 | Model and schema relationships | 2026-10-01 | | 43 tests/lint; migration no drift; live creator, note isolation, shared tags/idempotence and restart checks pass. |
 | [x] | CH12 | 8:33:25 | Error handling | 2026-10-01 | | 46 tests/lint; stable site_not_found on reads, edits, deletes and note access; live relationship regressions pass. |
-| [ ] | CH13 | 9:05:04 | Middleware | | | |
+| [x] | CH13 | 9:05:04 | Middleware | 2026-10-01 | | 49 tests/full lint; live safe logs, CORS/preflight, invalid hosts, docs and authentication checks pass. |
 | [ ] | CH14 | 10:40:38 | Email support | | | |
 | [ ] | CH15 | 11:23:48 | Background processing | | | |
 | [ ] | CH16 | 11:36:02 | API documentation | | | |
@@ -158,3 +158,7 @@ See CHAPTER11.md for schema, routes, historical-row handling and live verificati
 
 - `SiteNotFound` is raised by site lookup and registered once in the application factory. Read/update/delete and missing-site note/tag paths produce the same 404 message/code without internal details. Existing authentication, validation 422 and successful response contracts remain intact.
 - 46 tests and full lint pass. Regression tests check GET/PATCH/DELETE error bodies and malformed IDs; live relationship checks confirm missing-resource envelopes, successful writes and restart persistence. CH11 feature commit: `2da7fa1552cf28076ddfc2c81ab393e62a8f8903`; GitHub checks passed.
+
+## CH13 verification
+
+See CHAPTER13.md for configuration and verified policy behavior. Method, route template, status and timing are logged without credential-bearing request data. Success/error responses and authentication remain intact. CH12 feature commit: `7403cef2001fa0f4c4cb16f285c21ecad7ab13a3`. CH14–CH18 remain pending; no email delivery, background worker or deployment completion is claimed.

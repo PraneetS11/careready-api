@@ -6,6 +6,8 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
+    cors_origins: list[str] = ["http://localhost:3000", "http://localhost:5173"]
+    allowed_hosts: list[str] = ["localhost", "127.0.0.1"]
     app_name: str = "CareReady API"
     environment: Literal["development", "test", "production"] = "development"
     database_url: str = (

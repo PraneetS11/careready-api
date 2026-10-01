@@ -84,3 +84,7 @@ A foreign key connects a site to its creator and each note to its site and autho
 ## CH12: domain errors
 
 The service raises SiteNotFound to describe the failure. A central handler translates it into an HTTP 404 with a stable code and message. Input validation and authentication keep their own error behavior. Clients should branch on codes rather than parsing prose; responses must not contain tracebacks or credentials.
+
+## CH13: middleware
+
+Middleware wraps request handling and can observe both successful and handled-error responses. Timing uses a monotonic clock. CORS matches complete browser origins; trusted-host checks validate the Host header. Neither grants user permissions. Logs use route templates because path parameters, queries and headers can carry tokens.

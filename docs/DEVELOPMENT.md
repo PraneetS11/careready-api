@@ -108,3 +108,7 @@ Use POST /api/v1/auth/login with email/password JSON. Send the returned access
 JWT as `Authorization: Bearer <token>` for /api/v1/sites. Send the refresh JWT
 to POST /api/v1/auth/refresh; POST /api/v1/auth/logout revokes whichever token
 you present. Keep the existing Redis service running for validation and logout.
+
+## CH13 request policies
+
+See CHAPTER13.md and `.env.example` for JSON-list origin and host configuration. Local API docs remain available; testserver is accepted only in test mode unless explicitly configured. Request logs contain route templates rather than raw URLs.
