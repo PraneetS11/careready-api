@@ -8,7 +8,14 @@ from app.db.session import get_session
 from app.schemas.site_tags import SiteTagCreate, SiteTagRead
 from app.services.site_tags import SiteTagService
 
-router = APIRouter(dependencies=[Depends(RoleChecker(["coordinator", "admin"]))])
+router = APIRouter(
+    responses={
+        401: {"description": "Missing, invalid or expired access token"},
+        403: {"description": "Verification or permitted role required"},
+        404: {"description": "Requested resource does not exist"},
+    },
+    dependencies=[Depends(RoleChecker(["coordinator", "admin"]))],
+)
 service = SiteTagService()
 
 

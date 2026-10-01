@@ -10,7 +10,14 @@ from app.models.users import User
 from app.schemas.sites import SiteCreate, SiteRead, SiteUpdate
 from app.services.sites import SiteService
 
-router = APIRouter(dependencies=[Depends(RoleChecker(["coordinator", "admin"]))])
+router = APIRouter(
+    responses={
+        401: {"description": "Missing, invalid or expired access token"},
+        403: {"description": "Verification or permitted role required"},
+        404: {"description": "Requested resource does not exist"},
+    },
+    dependencies=[Depends(RoleChecker(["coordinator", "admin"]))],
+)
 site_service = SiteService()
 Session = Annotated[AsyncSession, Depends(get_session)]
 

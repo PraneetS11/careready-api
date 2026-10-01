@@ -4,6 +4,18 @@ from pydantic import BaseModel, ConfigDict
 
 
 class SiteCreate(BaseModel):
+    model_config = ConfigDict(
+        json_schema_extra={
+            "examples": [
+                {
+                    "name": "Cedar Care Hamilton",
+                    "city": "Hamilton",
+                    "timezone": "America/Toronto",
+                    "active": True,
+                }
+            ]
+        }
+    )
     name: str
     city: str
     timezone: str

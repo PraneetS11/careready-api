@@ -21,7 +21,7 @@ Record real date and proof before the chapter commit; add its SHA in the next do
 | [x] | CH13 | 9:05:04 | Middleware | 2026-10-01 | | 49 tests/full lint; live safe logs, CORS/preflight, invalid hosts, docs and authentication checks pass. |
 | [x] | CH14 | 10:40:38 | Email support | 2026-10-01 | | 52 tests/lint; local SMTP verification/recovery and restart checks pass. See CHAPTER14.md. |
 | [x] | CH15 | 11:23:48 | Background processing | 2026-10-01 | | 54 tests/lint; real BackgroundTasks timing, stopped-worker queue recovery, Flower success/failure and queued auth mail verified. |
-| [ ] | CH16 | 11:36:02 | API documentation | | | |
+| [x] | CH16 | 11:36:02 | API documentation | 2026-10-01 | | 55 tests/lint; OpenAPI examples, bearer security and errors verified; live docs pass; practice routes removed and README scope corrected. |
 | [ ] | CH17 | 12:09:17 | Testing: pytest, mocks and Schemathesis | | | |
 | [ ] | CH18 | 12:52:54 | Deployment | | | |
 
@@ -170,3 +170,7 @@ See CHAPTER14.md for local mail setup, observed results and the remaining one-us
 ## CH15 verification
 
 See CHAPTER15.md for worker/Flower commands, live results and delivery limitations. CH14 feature commit: `58ab534`.
+
+## CH16 verification
+
+OpenAPI metadata, tags, fictional site examples and documented auth/not-found responses describe implemented endpoints. Product README separates current single-organization operations from planned tenant/readiness features. Practice routes were removed. Live /docs and /openapi.json checks pass. CH15 feature commit: `6ce49c6`.

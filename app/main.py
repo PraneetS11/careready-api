@@ -1,8 +1,6 @@
 from contextlib import asynccontextmanager
-from typing import Optional
 
-from fastapi import FastAPI, Header
-from pydantic import BaseModel
+from fastapi import FastAPI
 from redis.asyncio import Redis
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
@@ -52,7 +50,23 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     app = FastAPI(
         title=config.app_name,
-        version="0.1.0",
+        version="0.2.0",
+        description=(
+            "A single-organization site operations API. Verified coordinators read sites "
+            "and create notes; admins manage sites and tags. Bearer access tokens are "
+            "required for business endpoints. Mail is queued to a local sandbox worker. "
+            "Multi-tenancy and equipment-readiness workflows are planned."
+        ),
+        openapi_tags=[
+            {"name": "auth", "description": "Signup, login, verification and password recovery."},
+            {
+                "name": "sites",
+                "description": "Site CRUD: admins write; verified coordinators read.",
+            },
+            {"name": "site notes", "description": "Fictional operational notes scoped to a site."},
+            {"name": "site tags", "description": "Shared categories attached to sites."},
+            {"name": "health", "description": "Liveness and dependency readiness."},
+        ],
         lifespan=lifespan,
     )
 
@@ -72,60 +86,11 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         tags=["sites"],
     )
 
+    @app.get("/", tags=["health"])
+    async def root():
+        return {"message": config.app_name}
+
     return app
 
 
 app = create_app()
-
-
-@app.get("/")
-async def read_root():
-    return {"message": "CareReady API"}
-
-
-@app.get("/practice/sites/{site_name}/welcome")
-async def greet_site(site_name: str) -> dict:
-    return {"message": f"Welcome to the {site_name} office!!"}
-
-
-@app.get("/practice/site-preview")
-async def preview_site(
-    city: str = "Hamilton",
-    active: bool = True,
-) -> dict:
-    return {
-        "city": city,
-        "active": active,
-    }
-
-
-class SiteCreateModel(BaseModel):
-    name: str
-    city: str
-    timezone: str
-    active: bool = True
-
-
-@app.post("/create_site")
-async def create_site_preview(
-    site_data: SiteCreateModel,
-) -> dict:
-    return {
-        "name": site_data.name,
-        "city": site_data.city,
-        "timezone": site_data.timezone,
-        "active": site_data.active,
-    }
-
-
-@app.get("/practice/headers")
-async def get_headers(
-    accept: Optional[str] = Header(None),
-    content_type: Optional[str] = Header(None),
-    host: Optional[str] = Header(None),
-) -> dict:
-    return {
-        "Accept": accept,
-        "Content-Type": content_type,
-        "Host": host,
-    }

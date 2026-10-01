@@ -9,7 +9,14 @@ from app.models.users import User
 from app.schemas.site_notes import SiteNoteCreate, SiteNoteRead
 from app.services.site_notes import SiteNoteService
 
-router = APIRouter(dependencies=[Depends(RoleChecker(["coordinator", "admin"]))])
+router = APIRouter(
+    responses={
+        401: {"description": "Missing, invalid or expired access token"},
+        403: {"description": "Verification or permitted role required"},
+        404: {"description": "Requested resource does not exist"},
+    },
+    dependencies=[Depends(RoleChecker(["coordinator", "admin"]))],
+)
 service = SiteNoteService()
 
 
