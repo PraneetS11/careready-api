@@ -15,7 +15,7 @@ Record real date and proof before the chapter commit; add its SHA in the next do
 | [x] | CH07 | 3:59:57 | Creating the user authentication model | 2026-09-30 | 5051fd4 | Empty careready_ch07 upgraded to c8af9d233c2f; repeat upgrade and schema check passed; safe UserRead and unique email verified; site create/list/restart passed without startup DDL; original practice rows preserved; 15 tests and lint pass. |
 | [x] | CH08 | 4:42:57 | User account creation | 2026-10-01 | | Signup 201 with safe fields; normalized duplicate 409; invalid input 422; Argon2 correct/wrong verification; concurrent uniqueness conflict rolls back; 15 tests, lint and dependency check pass. |
 | [x] | CH09 | 6:07:39 | JWT authentication | 2026-10-01 | | Login, protected CRUD, refresh and Redis revocation verified live; restart retains revocation; 32 tests and full lint pass. |
-| [ ] | CH10 | 6:39:24 | Role-based access control | | | |
+| [x] | CH10 | 6:39:24 | Role-based access control | 2026-10-01 | | 37 tests and lint pass; migration/no drift; live role enforcement, current account and deactivation verified. |
 | [ ] | CH11 | 7:59:58 | Model and schema relationships | | | |
 | [ ] | CH12 | 8:33:25 | Error handling | | | |
 | [ ] | CH13 | 9:05:04 | Middleware | | | |
@@ -142,3 +142,10 @@ Record real date and proof before the chapter commit; add its SHA in the next do
 - No role enforcement, organizations or refresh-token rotation added. See learning
   notes for per-token logout and Redis outage behavior. Feature SHA will be added
   in a later documentation update.
+
+## CH10 verification
+
+- Added default coordinator/admin roles, active account checks, safe `/auth/me`, and explicit role dependencies. Coordinators read sites; admins write. Signup cannot promote itself. See ROLE_MATRIX.md for the permission matrix and local promotion command.
+- Applied the additive migration to the configured development database; repeated upgrade and Alembic schema comparison pass. Existing accounts receive the safe coordinator default.
+- `make test`: 37 passed; `make lint` passes. Live fictional-account tests verify safe signup, coordinator write rejection for POST/PATCH/DELETE, role promotion taking effect with an existing token, inactive/deleted rejection, admin CRUD, and CH09 refresh/revocation behavior including restart. Verification records and exact Redis keys were cleaned up.
+- CH09 feature commit: `baf2c72fb519b34d3945f9866c1f54069a4a2768`. CH10 SHA will be recorded in a later update.

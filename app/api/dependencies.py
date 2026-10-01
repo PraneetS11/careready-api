@@ -1,9 +1,14 @@
+from uuid import UUID
+
 from fastapi import Depends, HTTPException, Request
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from redis.exceptions import RedisError
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.security import decode_token
+from app.db.session import get_session
 from app.db.token_store import token_in_blocklist
+from app.models.users import User
 
 bearer = HTTPBearer(auto_error=False)
 
@@ -41,3 +46,22 @@ async def require_refresh_token(data: dict = Depends(require_token)):
     if data["token_type"] != "refresh":
         raise unauthorized()
     return data
+
+
+async def get_current_user(
+    token: dict = Depends(require_access_token), session: AsyncSession = Depends(get_session)
+) -> User:
+    user = await session.get(User, UUID(token["sub"]))
+    if user is None or not user.is_active:
+        raise unauthorized()
+    return user
+
+
+class RoleChecker:
+    def __init__(self, allowed_roles):
+        self.allowed_roles = frozenset(allowed_roles)
+
+    async def __call__(self, user: User = Depends(get_current_user)) -> User:
+        if user.role not in self.allowed_roles:
+            raise HTTPException(403, "You are not allowed to perform this action")
+        return user

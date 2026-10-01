@@ -5,7 +5,12 @@ from redis.exceptions import RedisError
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.concurrency import run_in_threadpool
 
-from app.api.dependencies import require_refresh_token, require_token, unauthorized
+from app.api.dependencies import (
+    get_current_user,
+    require_refresh_token,
+    require_token,
+    unauthorized,
+)
 from app.core.security import create_token, verify_password
 from app.db.session import get_session
 from app.db.token_store import add_jti_to_blocklist
@@ -30,8 +35,12 @@ async def signup(data: UserCreate, session: AsyncSession = Depends(get_session))
 @router.post("/login", response_model=TokenPair)
 async def login(data: UserLogin, request: Request, session: AsyncSession = Depends(get_session)):
     user = await user_service.get_user_by_email(str(data.email), session)
-    if user is None or not await run_in_threadpool(
-        verify_password, data.password.get_secret_value(), user.password_hash
+    if (
+        user is None
+        or not user.is_active
+        or not await run_in_threadpool(
+            verify_password, data.password.get_secret_value(), user.password_hash
+        )
     ):
         raise HTTPException(
             401, "Invalid email or password", headers={"WWW-Authenticate": "Bearer"}
@@ -50,7 +59,7 @@ async def refresh(
     session: AsyncSession = Depends(get_session),
 ):
     user = await user_service.get_user_by_id(UUID(token["sub"]), session)
-    if user is None:
+    if user is None or not user.is_active:
         raise unauthorized()
     return {"access_token": create_token(user.id, request.app.state.settings)}
 
@@ -62,3 +71,8 @@ async def logout(request: Request, token: dict = Depends(require_token)):
     except RedisError:
         raise HTTPException(503, "Authentication service unavailable") from None
     return {"message": "Logged out successfully"}
+
+
+@router.get("/me", response_model=UserRead)
+async def current_account(user=Depends(get_current_user)):
+    return user

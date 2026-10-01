@@ -72,3 +72,7 @@
 - Validation reuses app.state.redis. Redis outages return generic 503 on
   protected requests, refresh and logout (fail closed). Login/signup may still
   succeed, but issued tokens cannot access protected routes during the outage.
+
+## CH10: authentication and authorization
+
+Authentication validates the token and identifies a live account. Authorization checks its current database role against the route policy. The JWT does not grant a permanent role: promotion or deactivation takes effect on the next request. Coordinators can read sites; admins can also change them. Signup never accepts a privileged role.

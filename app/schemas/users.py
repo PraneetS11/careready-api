@@ -23,6 +23,8 @@ class UserRead(BaseModel):
 
     id: UUID
     email: str
+    role: str = "coordinator"
+    is_active: bool = True
     is_verified: bool
     created_at: datetime
 
