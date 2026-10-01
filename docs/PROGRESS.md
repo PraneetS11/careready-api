@@ -12,8 +12,8 @@ Record real date and proof before the chapter commit; add its SHA in the next do
 | [ ] | CH04 | 1:38:22 | Large project structure using routers | | | |
 | [x] | CH05 | 2:29:48 | Databases with SQLModel | 2026-09-30 | 4b95de6 | Local PostgreSQL/Redis healthy; readiness 200 on two startups; one site table with UUID primary key and all five required columns; clean shutdown twice; 8 tests pass. See verification below. |
 | [x] | CH06 | 3:33:35 | Finishing the database CRUD | 2026-09-30 | 2193bf4 | PostgreSQL CRUD verified over HTTP; create/update survive separate API process restarts; filter, 201/204/404/422 checks pass; 15 tests and full lint pass. |
-| [x] | CH07 | 3:59:57 | Creating the user authentication model | 2026-09-30 | | Empty careready_ch07 upgraded to c8af9d233c2f; repeat upgrade and schema check passed; safe UserRead and unique email verified; site create/list/restart passed without startup DDL; original practice rows preserved; 15 tests and lint pass. |
-| [ ] | CH08 | 4:42:57 | User account creation | | | |
+| [x] | CH07 | 3:59:57 | Creating the user authentication model | 2026-09-30 | 5051fd4 | Empty careready_ch07 upgraded to c8af9d233c2f; repeat upgrade and schema check passed; safe UserRead and unique email verified; site create/list/restart passed without startup DDL; original practice rows preserved; 15 tests and lint pass. |
+| [x] | CH08 | 4:42:57 | User account creation | 2026-10-01 | | Signup 201 with safe fields; normalized duplicate 409; invalid input 422; Argon2 correct/wrong verification; concurrent uniqueness conflict rolls back; 15 tests, lint and dependency check pass. |
 | [ ] | CH09 | 6:07:39 | JWT authentication | | | |
 | [ ] | CH10 | 6:39:24 | Role-based access control | | | |
 | [ ] | CH11 | 7:59:58 | Model and schema relationships | | | |
@@ -85,3 +85,30 @@ Record real date and proof before the chapter commit; add its SHA in the next do
   deprecation warning remains. No new signup/login routes or Chapter 8 behavior.
 - CH06 feature SHA recorded above. CH07 SHA will be recorded in a later update,
   because this commit cannot include its own final SHA.
+
+## CH08 verification
+
+- Followed guide pages 31-33 with UserCreate, the existing UserRead, a user
+  service using SQLAlchemy AsyncSession, and an auth router registered inside
+  create_app(). POST /api/v1/auth/signup returns 201 with public fields only.
+- Email is trimmed and lowercased both at signup and in user lookup, ready for
+  reuse by later login work. EmailStr rejects malformed addresses; passwords
+  require 6-1024 characters and use SecretStr in the input schema.
+- Used the already installed pwdlib 0.3.1 / Argon2 stack; moved pwdlib to runtime
+  dependencies. Added email-validator 2.3.0 and dnspython 2.8.0 to the lock. No
+  later-chapter tools were installed. Hash work runs outside the async event loop.
+- Duplicate normalized emails return 409. The database's unique constraint also
+  catches racing signups; the service rolls back before translating the conflict.
+- Live checks ran against a disposable local PostgreSQL database upgraded using
+  existing migrations. Verified 201, safe response fields, persisted Argon2 hash,
+  correct/wrong password verification, repeated mixed-case/space-padded email
+  409 after an application restart, and malformed email/password input 422.
+- Forced two service requests past the initial lookup concurrently: exactly one
+  account persisted, the other raised the duplicate error, and its rolled-back
+  session successfully executed another query. Client-supplied is_verified and
+  password_hash could not override server values.
+- Removed the disposable database; existing development records were unchanged.
+  make test: 15 passed; make lint and pip check passed. The existing
+  Starlette/httpx deprecation warning remains. No login, tokens or email
+  verification behavior was added.
+- CH07 feature SHA recorded above; CH08 SHA belongs in a later documentation update.

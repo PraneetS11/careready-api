@@ -6,6 +6,7 @@ from pydantic import BaseModel
 from redis.asyncio import Redis
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
+from app.api.auth import router as auth_router
 from app.api.health import router as health_router
 from app.api.sites import router as sites_router
 from app.core.config import Settings
@@ -49,6 +50,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     )
 
     app.include_router(health_router)
+    app.include_router(auth_router, prefix="/api/v1/auth", tags=["auth"])
 
     app.include_router(
         sites_router,
