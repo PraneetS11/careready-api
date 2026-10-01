@@ -4,11 +4,12 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.api.dependencies import require_access_token
 from app.db.session import get_session
 from app.schemas.sites import SiteCreate, SiteRead, SiteUpdate
 from app.services.sites import SiteService
 
-router = APIRouter()
+router = APIRouter(dependencies=[Depends(require_access_token)])
 site_service = SiteService()
 Session = Annotated[AsyncSession, Depends(get_session)]
 

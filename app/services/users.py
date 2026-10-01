@@ -1,3 +1,5 @@
+from uuid import UUID
+
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import select
@@ -13,6 +15,9 @@ class DuplicateEmailError(Exception):
 
 
 class UserService:
+    async def get_user_by_id(self, user_id: UUID, session: AsyncSession) -> User | None:
+        return await session.get(User, user_id)
+
     async def get_user_by_email(self, email: str, session: AsyncSession) -> User | None:
         result = await session.execute(select(User).where(User.email == normalize_email(email)))
         return result.scalars().first()

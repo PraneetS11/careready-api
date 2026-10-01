@@ -5,6 +5,7 @@ import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.api.dependencies import require_access_token
 from app.core.config import Settings
 from app.db.session import get_session
 from app.main import create_app
@@ -30,6 +31,7 @@ def client(session):
         yield session
 
     app.dependency_overrides[get_session] = override_session
+    app.dependency_overrides[require_access_token] = lambda: {}
     with TestClient(app) as client:
         yield client
 

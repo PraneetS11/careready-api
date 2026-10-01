@@ -17,6 +17,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     @asynccontextmanager
     async def lifespan(app: FastAPI):
+        if config.environment != "test" and config.jwt_secret_key is None:
+            raise ValueError("Configure JWT_SECRET_KEY in the environment before starting the API")
         engine = create_async_engine(
             config.database_url,
             pool_pre_ping=True,
@@ -48,6 +50,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         version="0.1.0",
         lifespan=lifespan,
     )
+
+    app.state.settings = config
 
     app.include_router(health_router)
     app.include_router(auth_router, prefix="/api/v1/auth", tags=["auth"])

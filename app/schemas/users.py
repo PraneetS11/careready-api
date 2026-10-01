@@ -25,3 +25,18 @@ class UserRead(BaseModel):
     email: str
     is_verified: bool
     created_at: datetime
+
+
+class UserLogin(UserCreate):
+    """Same normalized email/password input as signup, without public account fields."""
+
+
+class TokenPair(BaseModel):
+    access_token: str
+    refresh_token: str
+    token_type: str = "bearer"
+
+
+class AccessToken(BaseModel):
+    access_token: str
+    token_type: str = "bearer"

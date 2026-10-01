@@ -94,3 +94,17 @@ and read after a fresh app lifespan passed without startup DDL; the verification
 site was deleted. The original database's site rows were unchanged. Existing
 15 tests and full lint pass; the existing Starlette/httpx deprecation warning
 remains.
+
+## Chapter 9 authentication configuration
+
+Set JWT_SECRET_KEY to a random secret of at least 32 characters in ignored .env
+before starting the API. Generate one with `python -c "import secrets;
+print(secrets.token_urlsafe(48))"` and save it locally; never commit its value.
+JWT_ALGORITHM is HS256. ACCESS_TOKEN_MINUTES defaults to 15 and
+REFRESH_TOKEN_DAYS to 2. JWT settings are read by the existing Settings class.
+A missing secret prevents normal development/production startup.
+
+Use POST /api/v1/auth/login with email/password JSON. Send the returned access
+JWT as `Authorization: Bearer <token>` for /api/v1/sites. Send the refresh JWT
+to POST /api/v1/auth/refresh; POST /api/v1/auth/logout revokes whichever token
+you present. Keep the existing Redis service running for validation and logout.

@@ -49,3 +49,26 @@
   route can return 404. Successful create/delete retain 201/204 status codes.
 - Returning `SiteRead` keeps responses limited to the public schema. Committed
   records survive API restarts because storage belongs to PostgreSQL, not Python.
+
+## CH09: JWT authentication
+
+- Login checks the normalized email and stored Argon2 password hash. Both wrong
+  password and unknown account return the same generic 401 message. Successful
+  login returns a 15-minute access token and a two-day refresh token by default.
+- JWTs are signed, not encrypted. Payloads contain user UUID (`sub`), expiry
+  (`exp`), unique token id (`jti`) and `token_type`, never passwords/hashes.
+  Decode requires all four claims, UUID identities, expiry and the allowed HS256
+  algorithm. The signing secret lives only in ignored .env, not source control.
+- All /api/v1/sites operations require an access bearer token. Missing, expired,
+  tampered, revoked or wrong-type credentials return 401. Health and signup/login
+  stay public; the earlier practice endpoints are not authentication mechanisms.
+- POST /api/v1/auth/refresh accepts only a refresh bearer token and checks that
+  its user still exists before returning a fresh access token. No active flag
+  has been added; role/verification enforcement belongs to later checkpoints.
+- POST /api/v1/auth/logout accepts an access or refresh bearer token and revokes
+  only the presented token. Redis stores careready:revoked:<jti> until that JWT
+  expires. Revoking one access token does not revoke its refresh token or other
+  devices. Full session-family logout and refresh rotation are not implemented.
+- Validation reuses app.state.redis. Redis outages return generic 503 on
+  protected requests, refresh and logout (fail closed). Login/signup may still
+  succeed, but issued tokens cannot access protected routes during the outage.

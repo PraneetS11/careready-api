@@ -14,7 +14,7 @@ Record real date and proof before the chapter commit; add its SHA in the next do
 | [x] | CH06 | 3:33:35 | Finishing the database CRUD | 2026-09-30 | 2193bf4 | PostgreSQL CRUD verified over HTTP; create/update survive separate API process restarts; filter, 201/204/404/422 checks pass; 15 tests and full lint pass. |
 | [x] | CH07 | 3:59:57 | Creating the user authentication model | 2026-09-30 | 5051fd4 | Empty careready_ch07 upgraded to c8af9d233c2f; repeat upgrade and schema check passed; safe UserRead and unique email verified; site create/list/restart passed without startup DDL; original practice rows preserved; 15 tests and lint pass. |
 | [x] | CH08 | 4:42:57 | User account creation | 2026-10-01 | | Signup 201 with safe fields; normalized duplicate 409; invalid input 422; Argon2 correct/wrong verification; concurrent uniqueness conflict rolls back; 15 tests, lint and dependency check pass. |
-| [ ] | CH09 | 6:07:39 | JWT authentication | | | |
+| [x] | CH09 | 6:07:39 | JWT authentication | 2026-10-01 | | Login, protected CRUD, refresh and Redis revocation verified live; restart retains revocation; 32 tests and full lint pass. |
 | [ ] | CH10 | 6:39:24 | Role-based access control | | | |
 | [ ] | CH11 | 7:59:58 | Model and schema relationships | | | |
 | [ ] | CH12 | 8:33:25 | Error handling | | | |
@@ -112,3 +112,33 @@ Record real date and proof before the chapter commit; add its SHA in the next do
   Starlette/httpx deprecation warning remains. No login, tokens or email
   verification behavior was added.
 - CH07 feature SHA recorded above; CH08 SHA belongs in a later documentation update.
+
+## CH09 verification
+
+- Added HS256 PyJWT access/refresh tokens with required sub/exp/jti/token_type
+  claims; the secret was generated only in ignored .env. .env.example contains
+  a placeholder. Promoted existing PyJWT to runtime dependencies; requirements.lock
+  already pins the installed PyJWT 2.15.0 and Redis 6.4.0, so no lock change needed.
+- Login uses normalized email and existing password verification in a threadpool;
+  wrong password/unknown account return identical generic 401 responses. Public
+  responses contain no password/hash. Protected site routes reject missing,
+  expired, tampered and malformed tokens and accept valid access credentials.
+- POST refresh only accepts refresh tokens, checks account existence and issues
+  new access tokens. Cross-use of access/refresh and expired refresh are rejected.
+- POST logout accepts either token type and revokes just that presented jti using
+  the existing Redis client. Observed access-token TTL: 900 seconds; refresh-token
+  revocation also has finite TTL. Revocation survived a stopped/restarted API
+  process, while separate fresh login tokens remained usable.
+- Live checks used fictional accounts and site records in the configured migrated
+  development database. All protected CRUD methods worked. Refresh after deleting
+  the verification account returned 401. Removed only verification records and
+  their exact Redis blocklist keys.
+- `make test`: 32 passed. Full lint/format, compile/import and pip check passed.
+  Unit tests also verify Redis lookup/write outages return 503 without leaking
+  internal details; no successful logout is reported on Redis write failure.
+- Existing CH06 CRUD unit tests override authentication only to retain their
+  database-contract focus; separate authentication tests exercise real bearer
+  validation on every site method. Live checks use the real dependencies.
+- No role enforcement, organizations or refresh-token rotation added. See learning
+  notes for per-token logout and Redis outage behavior. Feature SHA will be added
+  in a later documentation update.
