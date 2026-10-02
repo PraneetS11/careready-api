@@ -21,3 +21,5 @@ dist/
 
 .schemathesis/
 .hypothesis/
+
+.env.demo

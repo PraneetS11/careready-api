@@ -10,7 +10,7 @@ async def send_mail(settings, recipient: str, subject: str, body: str):
         MAIL_PASSWORD="",
         MAIL_FROM="noreply@example.com",
         MAIL_PORT=settings.mail_port,
-        MAIL_SERVER="127.0.0.1",
+        MAIL_SERVER=settings.mail_server,
         MAIL_STARTTLS=False,
         MAIL_SSL_TLS=False,
         USE_CREDENTIALS=False,

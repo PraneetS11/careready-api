@@ -8,6 +8,7 @@ class Settings(BaseSettings):
     celery_broker_url: str = "redis://127.0.0.1:6382/1"
     celery_result_backend: str = "redis://127.0.0.1:6382/2"
 
+    mail_server: Literal["127.0.0.1", "localhost", "mailpit"] = "127.0.0.1"
     mail_port: int = 1027
     public_base_url: str = "http://127.0.0.1:8002"
     mail_link_seconds: int = Field(default=3600, gt=0)

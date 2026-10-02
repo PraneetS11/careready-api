@@ -178,3 +178,7 @@ OpenAPI metadata, tags, fictional site examples and documented auth/not-found re
 ## CH17 verification
 
 See TESTING.md for exact disposable setup, commands, scope and results. Real tests use separate ephemeral containers, never development records. CI now runs those checks. CH16 feature commit: `2be48d5`.
+
+## CH18 local preparation (public deployment pending)
+
+Non-root API/worker images, one-shot migrations, persistent isolated PostgreSQL/Redis and sandbox mail containers built and passed the end-to-end demo checks. Lint and 58 tests pass. See DEPLOYMENT.md for commands and rollout/rollback. No public HTTPS URL exists; CH18 remains unchecked until a hosting destination and external checks are complete. CH17 commit: `5ed03b5` (GitHub CI passed).

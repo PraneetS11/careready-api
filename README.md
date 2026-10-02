@@ -34,3 +34,5 @@ Run `make test` and `make lint`. Stop the worker with Ctrl-C and Compose service
 ## Planned and limitations
 
 Organizations, tenant isolation, equipment stock/reservations, readiness workflows, purchase approvals, shipments/returns, audit retention and reporting are not implemented. Refresh-token rotation, single-use recovery links, reset-session invalidation, reliable outbox delivery and a public HTTPS deployment remain future work. Do not store patient, employee or customer information. Use fictional examples only. No license has been selected.
+
+Local containers, verified checks and pending public deployment: [Deployment](docs/DEPLOYMENT.md).

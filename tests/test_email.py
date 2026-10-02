@@ -38,7 +38,7 @@ class EmailTests(unittest.IsolatedAsyncioTestCase):
         ):
             with self.assertRaises(HTTPException) as error:
                 await send_mail(
-                    SimpleNamespace(mail_port=1027),
+                    SimpleNamespace(mail_server="127.0.0.1", mail_port=1027),
                     "fictional@example.com",
                     "Welcome",
                     "Fictional test",
