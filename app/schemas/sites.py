@@ -1,6 +1,6 @@
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class SiteCreate(BaseModel):
@@ -16,9 +16,9 @@ class SiteCreate(BaseModel):
             ]
         }
     )
-    name: str
-    city: str
-    timezone: str
+    name: str = Field(pattern=r"^[^\x00]*$")
+    city: str = Field(pattern=r"^[^\x00]*$")
+    timezone: str = Field(pattern=r"^[^\x00]*$")
     active: bool = True
 
 

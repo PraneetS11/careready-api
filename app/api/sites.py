@@ -12,6 +12,7 @@ from app.services.sites import SiteService
 
 router = APIRouter(
     responses={
+        400: {"description": "Malformed request body or invalid host"},
         401: {"description": "Missing, invalid or expired access token"},
         403: {"description": "Verification or permitted role required"},
         404: {"description": "Requested resource does not exist"},
