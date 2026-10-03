@@ -9,3 +9,5 @@
 .schemathesis
 *.egg-info
 work
+
+frontend

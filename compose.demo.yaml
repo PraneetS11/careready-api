@@ -8,6 +8,7 @@ x-app: &app
     REDIS_URL: redis://redis:6379/0
     CELERY_BROKER_URL: redis://redis:6379/1
     CELERY_RESULT_BACKEND: redis://redis:6379/2
+    FRONTEND_URL: http://127.0.0.1:8080
     MAIL_SERVER: mailpit
     MAIL_PORT: "1025"
     PUBLIC_BASE_URL: ${PUBLIC_BASE_URL:-http://127.0.0.1:8009}
@@ -15,6 +16,11 @@ x-app: &app
     CORS_ORIGINS: ${CORS_ORIGINS:-["http://localhost:3000"]}
     ENVIRONMENT: development
 services:
+  frontend:
+    build: ./frontend
+    ports: ["127.0.0.1:8080:8080"]
+    depends_on:
+      api: {condition: service_healthy}
   postgres:
     image: postgres:17-alpine
     environment:

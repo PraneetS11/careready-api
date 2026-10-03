@@ -21,3 +21,17 @@ jobs:
       - run: docker build -t careready-demo:ci .
       - if: always()
         run: docker compose -p careready-ch17-test -f compose.test.yaml down
+  frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci --prefix frontend
+      - run: npm run lint --prefix frontend
+      - run: npm run test --prefix frontend
+      - run: npm run build --prefix frontend
+      - run: docker build -t careready-web:ci frontend
