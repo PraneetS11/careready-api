@@ -44,6 +44,12 @@ async def send_account_link(user, settings, purpose):
     token = create_email_token(secret_for(settings), user.id, purpose)
     action = "verify" if purpose == "verify" else "password-reset-confirm"
     link = settings.public_base_url.rstrip("/") + "/api/v1/auth/" + action + "/" + token
+    if settings.frontend_url:
+        link = (
+            settings.frontend_url.rstrip("/")
+            + ("/verify/" if purpose == "verify" else "/reset/")
+            + token
+        )
     try:
         await run_in_threadpool(
             send_email.delay,

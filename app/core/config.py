@@ -10,6 +10,7 @@ class Settings(BaseSettings):
 
     mail_server: Literal["127.0.0.1", "localhost", "mailpit"] = "127.0.0.1"
     mail_port: int = 1027
+    frontend_url: str | None = None
     public_base_url: str = "http://127.0.0.1:8002"
     mail_link_seconds: int = Field(default=3600, gt=0)
 

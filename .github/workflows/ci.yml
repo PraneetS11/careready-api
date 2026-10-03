@@ -17,6 +17,7 @@ jobs:
       - run: docker compose -p careready-ch17-test -f compose.test.yaml up -d --wait
       - run: RUN_INTEGRATION=1 .venv/bin/python -m pytest -q
       - run: .venv/bin/python scripts/verify_isolated.py --contracts
+      - run: .venv/bin/python scripts/verify_network.py
       - run: docker build -t careready-demo:ci .
       - if: always()
         run: docker compose -p careready-ch17-test -f compose.test.yaml down
